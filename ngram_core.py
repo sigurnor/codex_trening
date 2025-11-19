@@ -1,5 +1,5 @@
 from collections import Counter
-from typing import List, Iterable, Tuple
+from typing import Dict, Iterable, List, Tuple
 
 
 def read_tokens_from_file(path: str) -> List[str]:
@@ -28,6 +28,14 @@ def count_ngrams(tokens: List[str], n: int) -> Counter:
     for ng in generate_ngrams(tokens, n):
         ngram_counter[ng] += 1
     return ngram_counter
+
+
+def count_multiple_ngrams(tokens: List[str], n_values: Iterable[int]) -> Dict[int, Counter]:
+    """Returnerer en mapping fra n til Counter med frekvenser."""
+    counts: Dict[int, Counter] = {}
+    for n in n_values:
+        counts[n] = count_ngrams(tokens, n)
+    return counts
 
 
 def write_ngrams_to_tsv(counter: Counter, out_path: str) -> None:
