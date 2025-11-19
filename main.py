@@ -1,7 +1,11 @@
 import argparse
 from pathlib import Path
 
-from ngram_core import read_tokens_from_file, count_ngrams, write_ngrams_to_tsv
+from ngram_core import (
+    read_tokens_from_file,
+    count_multiple_ngrams,
+    write_ngrams_to_tsv,
+)
 
 
 def parse_args() -> argparse.Namespace:
@@ -21,8 +25,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--n",
         type=int,
-        default=2,
-        help="Størrelse på n-gram (default: 2).",
+        nargs="+",
+        default=[1, 2, 3],
+        help="Størrelser på n-gram (default: 1 2 3).",
     )
     return parser.parse_args()
 
@@ -37,7 +42,11 @@ def main() -> None:
         raise SystemExit(f"Inputfil finnes ikke: {input_path}")
 
     tokens = read_tokens_from_file(str(input_path))
-    ngram_counts = count_ngrams(tokens, args.n)
+    n_values = sorted({n for n in args.n if n > 0})
+    if not n_values:
+        raise SystemExit("Minst én n-verdi > 0 må spesifiseres.")
+
+    ngram_counts = count_multiple_ngrams(tokens, n_values)
     write_ngrams_to_tsv(ngram_counts, str(output_path))
 
 
