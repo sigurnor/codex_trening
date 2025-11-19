@@ -1,5 +1,5 @@
 from collections import Counter
-from typing import List, Iterable, Tuple
+from typing import Dict, Iterable, List, Mapping, Tuple
 
 
 def read_tokens_from_file(path: str) -> List[str]:
@@ -30,9 +30,18 @@ def count_ngrams(tokens: List[str], n: int) -> Counter:
     return ngram_counter
 
 
-def write_ngrams_to_tsv(counter: Counter, out_path: str) -> None:
-    """Skriver n-grammer og frekvenser til en TSV-fil."""
+def count_multiple_ngrams(tokens: List[str], n_values: Iterable[int]) -> Dict[int, Counter]:
+    """Returnerer en mapping fra n til Counter med frekvenser."""
+    counts: Dict[int, Counter] = {}
+    for n in n_values:
+        counts[n] = count_ngrams(tokens, n)
+    return counts
+
+
+def write_ngrams_to_tsv(counter: Mapping[int, Counter], out_path: str) -> None:
+    """Skriver n-grammer og frekvenser til en TSV-fil gruppert per n."""
     with open(out_path, "w", encoding="utf-8") as f:
-        for ngram, count in counter.most_common():
-            ngram_str = " ".join(ngram)
-            f.write(f"{ngram_str}\t{count}\n")
+        for n in sorted(counter.keys()):
+            for ngram, count in counter[n].most_common():
+                ngram_str = " ".join(ngram)
+                f.write(f"{n}\t{ngram_str}\t{count}\n")
